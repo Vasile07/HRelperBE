@@ -1,0 +1,6 @@
+rootProject.name = 'HRelperBE'
+include 'Business'
+include 'Model'
+include 'Persistence'
+include 'RestController'
+include 'Utils'

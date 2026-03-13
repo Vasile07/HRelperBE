@@ -1,0 +1,99 @@
+# =========================
+
+# Gradle
+
+# =========================
+
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Ignore build folders in submodules
+
+**/build/
+
+# =========================
+
+# Java
+
+# =========================
+
+*.class
+*.log
+*.ctxt
+
+# =========================
+
+# IDE - IntelliJ
+
+# =========================
+
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# =========================
+
+# IDE - Eclipse
+
+# =========================
+
+.project
+.classpath
+.settings/
+bin/
+
+# =========================
+
+# IDE - VSCode
+
+# =========================
+
+.vscode/
+
+# =========================
+
+# OS files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+
+# Logs
+
+# =========================
+
+logs/
+*.log
+
+# =========================
+
+# Environment / secrets
+
+# =========================
+
+.env
+application-local.properties
+application-dev.properties
+
+# =========================
+
+# Gradle wrapper logs
+
+# =========================
+
+gradle-app.setting
+
+# =========================
+
+# Temporary files
+
+# =========================
+
+*.tmp
+*.swp

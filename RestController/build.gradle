@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'cs.ubb.hrelperbe'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':Model')
+    implementation project(':Business')
+    implementation project(':Utils')
+
+    // Spring Boot starters for application
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'com.auth0:java-jwt:4.4.0'
+    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'org.postgresql:postgresql:42.6.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
