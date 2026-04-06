@@ -23,7 +23,7 @@ public class UserRepositoryImplementation implements UserRepositoryInterface {
     public User getUserByEmail(String email) {
         try (
                 Connection connection = databaseConnection.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("select * from Users where email like ?");
+                PreparedStatement preparedStatement = connection.prepareStatement("select * from \"Users\" where email like ?");
         ) {
             preparedStatement.setString(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
