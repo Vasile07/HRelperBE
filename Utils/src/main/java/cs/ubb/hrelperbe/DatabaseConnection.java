@@ -11,6 +11,10 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     @Value(value = "${spring.datasource.url}")
     private String connectionString;
+    @Value(value = "${spring.datasource.username}")
+    private String username;
+    @Value(value = "${spring.datasource.password}")
+    private String password;
     private static Connection connection;
 
     public DatabaseConnection() {
@@ -19,7 +23,7 @@ public class DatabaseConnection {
 
     public Connection getConnection() throws SQLException {
         if (connection == null) {
-            connection = DriverManager.getConnection(connectionString);
+            connection = DriverManager.getConnection(connectionString, username, password);
         }
         return connection;
     }
