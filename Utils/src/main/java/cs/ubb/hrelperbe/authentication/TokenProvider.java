@@ -3,6 +3,7 @@ package cs.ubb.hrelperbe.authentication;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import cs.ubb.hrelperbe.BaseModels.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,12 @@ public class TokenProvider {
      * @param user the user for whom the token is being generated
      * @return a signed JWT token containing the user's ID
      */
-//    public String generateAccessToken(User user) {
-//        Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
-//        return JWT.create()
-//                .withSubject(user.getUserId().toString())
-//                .sign(algorithm);
-//    }
+    public String generateAccessToken(User user) {
+        Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+        return JWT.create()
+                .withSubject(user.getUserId().toString())
+                .sign(algorithm);
+    }
 
     /**
      * Validates a JWT token by verifying its signature and extracting the user ID from the token's subject.
