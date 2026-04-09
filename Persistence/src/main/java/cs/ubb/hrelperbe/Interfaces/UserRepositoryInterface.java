@@ -4,4 +4,6 @@ import cs.ubb.hrelperbe.BaseModels.User;
 
 public interface UserRepositoryInterface {
     public User getUserByEmail(String email);
+
+    public void save(User user);
 }
