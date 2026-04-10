@@ -12,5 +12,4 @@ import lombok.Setter;
 public class MustHaveSkill {
     private Integer skillId;
     private String description;
-    private Job job;
 }

@@ -12,5 +12,4 @@ import lombok.Setter;
 public class InterviewGuideQuestion {
     private Integer questionId;
     private String description;
-    private Job job;
 }
