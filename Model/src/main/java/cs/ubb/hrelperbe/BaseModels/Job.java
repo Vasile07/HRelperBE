@@ -16,4 +16,6 @@ public class Job {
     private Role role;
     private String description;
     private List<Technology> technologies;
+    private List<MustHaveSkill> mustHaveSkills;
+    private List<InterviewGuideQuestion> interviewGuideQuestions;
 }
