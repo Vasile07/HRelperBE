@@ -1,14 +1,12 @@
 package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.*;
-import cs.ubb.hrelperbe.Constants.UserType;
 import cs.ubb.hrelperbe.DatabaseConnection;
 import cs.ubb.hrelperbe.Interfaces.JobRepositoryInterface;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.List;
-import java.util.Stack;
 
 @Repository
 public class JobRepositoryImplementation implements JobRepositoryInterface {
@@ -19,18 +17,11 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
         this.databaseConnection = databaseConnection;
     }
 
-    private void saveSkillsOfAJob(Integer jobId, List<MustHaveSkill> skills){
-        Connection connection = null;
-        try {
-            connection = databaseConnection.getConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (
-                PreparedStatement statement = connection.prepareStatement("insert into \"MustHaveSkills\"(description, \"jobId\") values (?, ?)");
-        ) {
-            for (MustHaveSkill skill : skills){
+    private void saveSkillsOfAJob(Connection connection, Integer jobId, List<MustHaveSkill> skills) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO \"MustHaveSkills\"(description, \"jobId\") VALUES (?, ?)"
+        )) {
+            for (MustHaveSkill skill : skills) {
                 statement.setString(1, skill.getDescription());
                 statement.setInt(2, jobId);
                 statement.addBatch();
@@ -41,18 +32,11 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
         }
     }
 
-    private void saveGuideOfAJob(Integer jobId, List<InterviewGuideQuestion> guideQuestions){
-        Connection connection = null;
-        try {
-            connection = databaseConnection.getConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (
-                PreparedStatement statement = connection.prepareStatement("insert into \"InterviewGuideQuestions\"(description, \"jobId\") values (?, ?)");
-        ) {
-            for (InterviewGuideQuestion question : guideQuestions){
+    private void saveGuideOfAJob(Connection connection, Integer jobId, List<InterviewGuideQuestion> guideQuestions) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO \"InterviewGuideQuestions\"(description, \"jobId\") VALUES (?, ?)"
+        )) {
+            for (InterviewGuideQuestion question : guideQuestions) {
                 statement.setString(1, question.getDescription());
                 statement.setInt(2, jobId);
                 statement.addBatch();
@@ -63,20 +47,13 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
         }
     }
 
-    private void saveJobTechStack(Integer jobId, List<Technology> technologies){
-        Connection connection = null;
-        try {
-            connection = databaseConnection.getConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (
-                PreparedStatement statement = connection.prepareStatement("insert into \"JobTechStack\"(\"jobId\", \"technologyId\") values (?, ?)");
-        ) {
-            for (Technology technology : technologies){
+    private void saveJobTechStack(Connection connection, Integer jobId, List<Technology> technologies) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO \"JobTechStack\"(\"jobId\", \"technologyId\") VALUES (?, ?)"
+        )) {
+            for (Technology tech : technologies) {
                 statement.setInt(1, jobId);
-                statement.setInt(2, technology.getTechnologyId());
+                statement.setInt(2, tech.getTechnologyId());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -87,32 +64,115 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     @Override
     public void save(Job job) {
-        Connection connection = null;
-        try {
-            connection = databaseConnection.getConnection();
+        try (Connection connection = databaseConnection.getConnection()) {
+
+            connection.setAutoCommit(false); // start transaction
+
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO \"Jobs\"(\"roleId\", description) VALUES (?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
+
+                statement.setInt(1, job.getRole().getRoleId());
+                statement.setString(2, job.getDescription());
+
+                int cols = statement.executeUpdate();
+                if (cols == 0) {
+                    throw new RuntimeException("Database error");
+                }
+
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int jobId = generatedKeys.getInt(1);
+
+                        saveSkillsOfAJob(connection, jobId, job.getMustHaveSkills());
+                        saveGuideOfAJob(connection, jobId, job.getInterviewGuideQuestions());
+                        saveJobTechStack(connection, jobId, job.getTechnologies());
+                    }
+                }
+
+                connection.commit(); // success
+
+            } catch (Exception e) {
+                connection.rollback(); // rollback on error
+                throw new RuntimeException(e);
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
 
-        try (
-                PreparedStatement statement = connection.prepareStatement("insert into \"Jobs\"(\"roleId\", description) values (?, ?)", Statement.RETURN_GENERATED_KEYS);
-        ) {
-            statement.setInt(1, job.getRole().getRoleId());
-            statement.setString(2, job.getDescription());
+    private void deleteJobMustHaveSkills(Connection connection, Integer jobId) {
+        try (PreparedStatement stmt = connection.prepareStatement(
+                "DELETE FROM \"MustHaveSkills\" WHERE \"jobId\" = ?"
+        )) {
+            stmt.setInt(1, jobId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-            int cols = statement.executeUpdate();
-            if (cols == 0){
-                throw new RuntimeException("Database error");
-            }
-            else{
-                try(ResultSet generatedKeys = statement.getGeneratedKeys()){
-                    if (generatedKeys.next()){
-                        int jobId = generatedKeys.getInt(1);
-                        saveSkillsOfAJob(jobId, job.getMustHaveSkills());
-                        saveGuideOfAJob(jobId, job.getInterviewGuideQuestions());
-                        saveJobTechStack(jobId, job.getTechnologies());
+    private void deleteJobInterviewGuideQuestions(Connection connection, Integer jobId) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?"
+        )) {
+            statement.setInt(1, jobId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void deleteJobTechnicalStack(Connection connection, Integer jobId) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM \"JobTechStack\" WHERE \"jobId\" = ?"
+        )) {
+            statement.setInt(1, jobId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public void update(Job job) {
+        try (Connection connection = databaseConnection.getConnection()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE \"Jobs\" SET \"roleId\" = ?, description = ? WHERE \"jobId\" = ?"
+                )) {
+                    statement.setInt(1, job.getRole().getRoleId());
+                    statement.setString(2, job.getDescription());
+                    statement.setInt(3, job.getJobId());
+
+                    int rows = statement.executeUpdate();
+                    if (rows == 0) {
+                        throw new RuntimeException("Job not found!");
                     }
                 }
+
+
+                deleteJobMustHaveSkills(connection, job.getJobId());
+                deleteJobInterviewGuideQuestions(connection, job.getJobId());
+                deleteJobTechnicalStack(connection, job.getJobId());
+
+
+                saveSkillsOfAJob(connection, job.getJobId(), job.getMustHaveSkills());
+                saveGuideOfAJob(connection, job.getJobId(), job.getInterviewGuideQuestions());
+                saveJobTechStack(connection, job.getJobId(), job.getTechnologies());
+
+                connection.commit();
+
+            } catch (Exception e) {
+                connection.rollback();
+                throw new RuntimeException(e);
             }
 
         } catch (SQLException e) {
