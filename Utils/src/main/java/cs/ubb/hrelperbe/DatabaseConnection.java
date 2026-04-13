@@ -9,22 +9,20 @@ import java.sql.SQLException;
 
 @Component
 public class DatabaseConnection {
-    @Value(value = "${spring.datasource.url}")
+
+    @Value("${spring.datasource.url}")
     private String connectionString;
-    @Value(value = "${spring.datasource.username}")
+
+    @Value("${spring.datasource.username}")
     private String username;
-    @Value(value = "${spring.datasource.password}")
+
+    @Value("${spring.datasource.password}")
     private String password;
-    private static Connection connection;
 
     public DatabaseConnection() {
-
     }
 
     public Connection getConnection() throws SQLException {
-        if (connection == null) {
-            connection = DriverManager.getConnection(connectionString, username, password);
-        }
-        return connection;
+        return DriverManager.getConnection(connectionString, username, password);
     }
 }

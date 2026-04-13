@@ -56,4 +56,38 @@ public class JobServiceImplementation implements JobServiceInterface {
         job.setInterviewGuideQuestions(guides);
         jobRepository.save(job);
     }
+
+    @Override
+    public void updateJobPost(JobPostData jobPostData, Integer jobId) {
+        Role role = roleRepository.getRoleById(jobPostData.getRoleId());
+        List<MustHaveSkill> skills = jobPostData.getSkills()
+                .stream()
+                .map(skillDescription -> {
+                    MustHaveSkill skill = new MustHaveSkill();
+                    skill.setDescription(skillDescription);
+                    return skill;
+                })
+                .toList();
+        List<InterviewGuideQuestion> guides = jobPostData.getGuides()
+                .stream()
+                .map(guideDescription -> {
+                    InterviewGuideQuestion guide = new InterviewGuideQuestion();
+                    guide.setDescription(guideDescription);
+                    return guide;
+                })
+                .toList();
+        List<Technology> technologies = jobPostData.getTechnologies()
+                .stream()
+                .map(technologyRepository::getTechnologyById)
+                .toList();
+
+        Job job = new Job();
+        job.setJobId(jobId);
+        job.setRole(role);
+        job.setDescription(jobPostData.getDescription());
+        job.setTechnologies(technologies);
+        job.setMustHaveSkills(skills);
+        job.setInterviewGuideQuestions(guides);
+        jobRepository.update(job);
+    }
 }

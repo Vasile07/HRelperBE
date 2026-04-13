@@ -4,4 +4,6 @@ import cs.ubb.hrelperbe.BaseModels.Job;
 
 public interface JobRepositoryInterface {
     public void save(Job job);
+
+    public void update(Job job);
 }
