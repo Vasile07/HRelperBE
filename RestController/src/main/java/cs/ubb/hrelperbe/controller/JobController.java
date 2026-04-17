@@ -1,12 +1,13 @@
 package cs.ubb.hrelperbe.controller;
 
 import cs.ubb.hrelperbe.DTOs.JobPostData;
-import cs.ubb.hrelperbe.DTOs.LoginCredentials;
+import cs.ubb.hrelperbe.DTOs.QuizQuestionDTO;
 import cs.ubb.hrelperbe.Interfaces.JobServiceInterface;
+import cs.ubb.hrelperbe.Interfaces.QuizServiceInterface;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/jobs")
@@ -14,8 +15,11 @@ import java.util.Optional;
 public class JobController {
     private final JobServiceInterface jobService;
 
-    public JobController(JobServiceInterface jobService) {
+    private final QuizServiceInterface quizService;
+
+    public JobController(JobServiceInterface jobService, QuizServiceInterface quizService) {
         this.jobService = jobService;
+        this.quizService = quizService;
     }
 
     @PostMapping(path = "")
@@ -28,4 +32,8 @@ public class JobController {
         jobService.updateJobPost(jobPostData, id);
     }
 
+    @GetMapping(path = "/{id}/quiz")
+    public List<QuizQuestionDTO> getQuizForJob(@PathVariable Integer id){
+        return quizService.getQuizForJob(id);
+    }
 }
