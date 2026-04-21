@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class TechnologyRepositoryImplementation implements TechnologyRepositoryInterface {
@@ -44,5 +46,36 @@ public class TechnologyRepositoryImplementation implements TechnologyRepositoryI
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public List<Technology> getAllTechnologies() {
+        List<Technology> technologies = new ArrayList<>();
+        Connection connection = null;
+
+        try {
+            connection = databaseConnection.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to get database connection", e);
+        }
+
+        String sql = "SELECT * FROM \"Technologies\"";
+
+        try(
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet resultSet = preparedStatement.executeQuery()
+        ) {
+            while(resultSet.next()) {
+                Integer id = resultSet.getInt("technologyId");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+
+                technologies.add(new Technology(id, name, description));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error while fetching technologies", e);
+        }
+
+        return technologies;
     }
 }
