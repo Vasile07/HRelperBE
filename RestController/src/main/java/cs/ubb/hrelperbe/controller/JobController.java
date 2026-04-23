@@ -1,5 +1,6 @@
 package cs.ubb.hrelperbe.controller;
 
+import cs.ubb.hrelperbe.DTOs.JobDetailsResponse;
 import cs.ubb.hrelperbe.DTOs.JobPostData;
 import cs.ubb.hrelperbe.DTOs.QuizQuestionDTO;
 import cs.ubb.hrelperbe.Interfaces.JobServiceInterface;
@@ -35,5 +36,10 @@ public class JobController {
     @GetMapping(path = "/{id}/quiz")
     public List<QuizQuestionDTO> getQuizForJob(@PathVariable Integer id){
         return quizService.getQuizForJob(id);
+    }
+
+    @GetMapping(path = "/{id}")
+    public JobDetailsResponse getJobDetailsById(@PathVariable Integer id) {
+        return jobService.getJobDetails(id);
     }
 }

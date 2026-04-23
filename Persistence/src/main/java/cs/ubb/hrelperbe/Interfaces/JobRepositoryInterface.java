@@ -6,4 +6,6 @@ public interface JobRepositoryInterface {
     public void save(Job job);
 
     public void update(Job job);
+
+    Job getJobDetailsById(Integer jobId);
 }
