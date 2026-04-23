@@ -1,7 +1,9 @@
 package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.*;
+import cs.ubb.hrelperbe.DTOs.JobDetailsResponse;
 import cs.ubb.hrelperbe.DTOs.JobPostData;
+import cs.ubb.hrelperbe.DTOs.TechnologyResponse;
 import cs.ubb.hrelperbe.Interfaces.JobRepositoryInterface;
 import cs.ubb.hrelperbe.Interfaces.JobServiceInterface;
 import cs.ubb.hrelperbe.Interfaces.RoleRepositoryInterface;
@@ -9,6 +11,7 @@ import cs.ubb.hrelperbe.Interfaces.TechnologyRepositoryInterface;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class JobServiceImplementation implements JobServiceInterface {
@@ -89,5 +92,32 @@ public class JobServiceImplementation implements JobServiceInterface {
         job.setMustHaveSkills(skills);
         job.setInterviewGuideQuestions(guides);
         jobRepository.update(job);
+    }
+
+    @Override
+    public JobDetailsResponse getJobDetails(Integer jobId) {
+        Job job = jobRepository.getJobDetailsById(jobId);
+
+        List<String> skills = job.getMustHaveSkills().stream()
+                .map(MustHaveSkill::getDescription)
+                .toList();
+
+        List<String> guides = job.getInterviewGuideQuestions().stream()
+                .map(InterviewGuideQuestion::getDescription)
+                .toList();
+
+        List<TechnologyResponse> techResponses = job.getTechnologies().stream()
+                .map(tech -> new TechnologyResponse(tech.getTechnologyId(), tech.getName()))
+                .toList();
+
+        return new JobDetailsResponse(
+                job.getJobId(),
+                job.getDescription(),
+                job.getRole().getName(),
+                job.getRole().getDepartment().getName(),
+                skills,
+                techResponses,
+                guides
+        );
     }
 }

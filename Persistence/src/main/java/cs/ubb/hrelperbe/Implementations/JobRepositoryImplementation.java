@@ -6,6 +6,7 @@ import cs.ubb.hrelperbe.Interfaces.JobRepositoryInterface;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -175,6 +176,106 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
                 throw new RuntimeException(e);
             }
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<MustHaveSkill> getSkillsOfAJob(Connection connection, Integer jobId) {
+        List<MustHaveSkill> skills = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM \"MustHaveSkills\" WHERE \"jobId\" = ?")) {
+            stmt.setInt(1, jobId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    MustHaveSkill skill = new MustHaveSkill();
+                    skill.setSkillId(rs.getInt("skillId"));
+                    skill.setDescription(rs.getString("description"));
+                    skills.add(skill);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return skills;
+    }
+
+    private List<InterviewGuideQuestion> getGuidesOfAJob(Connection connection, Integer jobId) {
+        List<InterviewGuideQuestion> guides = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?")) {
+            stmt.setInt(1, jobId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    InterviewGuideQuestion guide = new InterviewGuideQuestion();
+                    guide.setQuestionId(rs.getInt("questionId"));
+                    guide.setDescription(rs.getString("description"));
+                    guides.add(guide);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return guides;
+    }
+
+    private List<Technology> getTechnologiesOfAJob(Connection connection, Integer jobId) {
+        List<Technology> technologies = new ArrayList<>();
+        String sql = "SELECT t.* FROM \"Technologies\" t " +
+                "JOIN \"JobTechStack\" jts ON t.\"technologyId\" = jts.\"technologyId\" " +
+                "WHERE jts.\"jobId\" = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, jobId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Technology tech = new Technology();
+                    tech.setTechnologyId(rs.getInt("technologyId"));
+                    tech.setName(rs.getString("name"));
+                    tech.setDescription(rs.getString("description"));
+                    technologies.add(tech);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return technologies;
+    }
+
+    @Override
+    public Job getJobDetailsById(Integer jobId) {
+        try (Connection connection = databaseConnection.getConnection()) {
+            String sql = "SELECT j.\"jobId\", j.description AS job_desc, " +
+                    "r.\"roleId\", r.name AS role_name, " +
+                    "d.\"departmentId\", d.name AS dept_name " +
+                    "FROM \"Jobs\" j " +
+                    "JOIN \"Roles\" r ON j.\"roleId\" = r.\"roleId\" " +
+                    "JOIN \"Departments\" d ON r.\"departmentId\" = d.\"departmentId\" " +
+                    "WHERE j.\"jobId\" = ?";
+
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, jobId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        Department dept = new Department(rs.getInt("departmentId"), rs.getString("dept_name"));
+                        Role role = new Role(rs.getInt("roleId"), rs.getString("role_name"), dept);
+
+                        Job job = new Job();
+                        job.setJobId(rs.getInt("jobId"));
+                        job.setDescription(rs.getString("job_desc"));
+                        job.setRole(role);
+
+                        job.setMustHaveSkills(getSkillsOfAJob(connection, job.getJobId()));
+                        job.setInterviewGuideQuestions(getGuidesOfAJob(connection, job.getJobId()));
+                        job.setTechnologies(getTechnologiesOfAJob(connection, job.getJobId()));
+
+                        return job;
+                    } else {
+                        throw new RuntimeException("Job not found with id: " + jobId);
+                    }
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
