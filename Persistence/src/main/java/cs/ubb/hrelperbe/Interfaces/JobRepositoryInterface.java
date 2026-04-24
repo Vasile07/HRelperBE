@@ -7,5 +7,7 @@ public interface JobRepositoryInterface {
 
     public void update(Job job);
 
+    public void deleteById(Integer jobId);
+
     Job getJobDetailsById(Integer jobId);
 }

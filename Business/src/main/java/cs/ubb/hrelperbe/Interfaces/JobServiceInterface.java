@@ -8,5 +8,7 @@ public interface JobServiceInterface {
 
     public void updateJobPost(JobPostData jobPostData, Integer jobId);
 
+    public void deleteJob(Integer jobId);
+
     JobDetailsResponse getJobDetails(Integer jobId);
 }
