@@ -1,13 +1,17 @@
 package cs.ubb.hrelperbe.controller;
 
+import cs.ubb.hrelperbe.DTOs.TechnologyData;
 import cs.ubb.hrelperbe.DTOs.TechnologyResponse;
 import cs.ubb.hrelperbe.Interfaces.TechnologyServiceInterface;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/technologies")
@@ -23,4 +27,10 @@ public class TechnologyController {
     public List<TechnologyResponse> getAllTechnologies() {
         return technologyService.getAllTechnologies();
     }
+
+    @GetMapping(path = "/{id}")
+    public TechnologyData getMethodName(@PathVariable Integer id) {
+        return technologyService.getTechnologyById(id);
+    }
+    
 }

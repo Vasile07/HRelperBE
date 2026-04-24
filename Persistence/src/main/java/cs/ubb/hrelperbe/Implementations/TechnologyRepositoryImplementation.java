@@ -41,7 +41,7 @@ public class TechnologyRepositoryImplementation implements TechnologyRepositoryI
                 return technology;
             }
             else{
-                throw new RuntimeException("Role doesn't exist");
+                throw new RuntimeException("Technology not found with id: " + technologyId);
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
