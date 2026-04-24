@@ -2,6 +2,7 @@ package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.*;
 import cs.ubb.hrelperbe.DTOs.JobDetailsResponse;
+import cs.ubb.hrelperbe.DTOs.JobHeaderData;
 import cs.ubb.hrelperbe.DTOs.JobPostData;
 import cs.ubb.hrelperbe.DTOs.TechnologyResponse;
 import cs.ubb.hrelperbe.Interfaces.JobRepositoryInterface;
@@ -119,5 +120,17 @@ public class JobServiceImplementation implements JobServiceInterface {
                 techResponses,
                 guides
         );
+    }
+    @Override
+    public List<JobHeaderData> getJobHeaders(){
+        List<Job> jobHeaders = jobRepository.getJobHeaders();
+
+        return jobHeaders.stream()
+        .map(job -> new JobHeaderData(
+            job.getJobId(), 
+            job.getRole().getName(),
+            job.getRole().getDepartment().getName()
+        ))
+        .collect(Collectors.toList());
     }
 }
