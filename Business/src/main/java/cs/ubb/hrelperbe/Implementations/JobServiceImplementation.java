@@ -94,6 +94,11 @@ public class JobServiceImplementation implements JobServiceInterface {
         jobRepository.update(job);
     }
 
+        @Override
+        public void deleteJob(Integer jobId) {
+                jobRepository.deleteById(jobId);
+        }
+
     @Override
     public JobDetailsResponse getJobDetails(Integer jobId) {
         Job job = jobRepository.getJobDetailsById(jobId);

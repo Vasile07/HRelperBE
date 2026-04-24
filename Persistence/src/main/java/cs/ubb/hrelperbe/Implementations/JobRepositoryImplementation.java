@@ -181,6 +181,39 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
         }
     }
 
+    @Override
+    public void deleteById(Integer jobId) {
+        try (Connection connection = databaseConnection.getConnection()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                deleteJobMustHaveSkills(connection, jobId);
+                deleteJobInterviewGuideQuestions(connection, jobId);
+                deleteJobTechnicalStack(connection, jobId);
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM \"Jobs\" WHERE \"jobId\" = ?"
+                )) {
+                    statement.setInt(1, jobId);
+                    int rows = statement.executeUpdate();
+                    if (rows == 0) {
+                        throw new RuntimeException("Job not found!");
+                    }
+                }
+
+                connection.commit();
+
+            } catch (Exception e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<MustHaveSkill> getSkillsOfAJob(Connection connection, Integer jobId) {
         List<MustHaveSkill> skills = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM \"MustHaveSkills\" WHERE \"jobId\" = ?")) {

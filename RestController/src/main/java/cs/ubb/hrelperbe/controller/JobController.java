@@ -29,17 +29,22 @@ public class JobController {
     }
 
     @PutMapping(path = "/{id}")
-    public void editJobPost(@RequestBody JobPostData jobPostData, @PathVariable Integer id){
+    public void editJobPost(@RequestBody JobPostData jobPostData, @PathVariable("id") Integer id){
         jobService.updateJobPost(jobPostData, id);
     }
 
+    @DeleteMapping(path = "/{id}")
+    public void deleteJob(@PathVariable("id") Integer id){
+        jobService.deleteJob(id);
+    }
+
     @GetMapping(path = "/{id}/quiz")
-    public List<QuizQuestionDTO> getQuizForJob(@PathVariable Integer id){
+    public List<QuizQuestionDTO> getQuizForJob(@PathVariable("id") Integer id){
         return quizService.getQuizForJob(id);
     }
 
     @GetMapping(path = "/{id}")
-    public JobDetailsResponse getJobDetailsById(@PathVariable Integer id) {
+    public JobDetailsResponse getJobDetailsById(@PathVariable("id") Integer id) {
         return jobService.getJobDetails(id);
     }
 }
