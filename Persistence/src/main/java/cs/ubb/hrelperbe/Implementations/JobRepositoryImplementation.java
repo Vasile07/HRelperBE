@@ -20,8 +20,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void saveSkillsOfAJob(Connection connection, Integer jobId, List<MustHaveSkill> skills) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO \"MustHaveSkills\"(description, \"jobId\") VALUES (?, ?)"
-        )) {
+                "INSERT INTO \"MustHaveSkills\"(description, \"jobId\") VALUES (?, ?)")) {
             for (MustHaveSkill skill : skills) {
                 statement.setString(1, skill.getDescription());
                 statement.setInt(2, jobId);
@@ -35,8 +34,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void saveGuideOfAJob(Connection connection, Integer jobId, List<InterviewGuideQuestion> guideQuestions) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO \"InterviewGuideQuestions\"(description, \"jobId\") VALUES (?, ?)"
-        )) {
+                "INSERT INTO \"InterviewGuideQuestions\"(description, \"jobId\") VALUES (?, ?)")) {
             for (InterviewGuideQuestion question : guideQuestions) {
                 statement.setString(1, question.getDescription());
                 statement.setInt(2, jobId);
@@ -50,8 +48,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void saveJobTechStack(Connection connection, Integer jobId, List<Technology> technologies) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO \"JobTechStack\"(\"jobId\", \"technologyId\") VALUES (?, ?)"
-        )) {
+                "INSERT INTO \"JobTechStack\"(\"jobId\", \"technologyId\") VALUES (?, ?)")) {
             for (Technology tech : technologies) {
                 statement.setInt(1, jobId);
                 statement.setInt(2, tech.getTechnologyId());
@@ -71,8 +68,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO \"Jobs\"(\"roleId\", description) VALUES (?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            )) {
+                    Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setInt(1, job.getRole().getRoleId());
                 statement.setString(2, job.getDescription());
@@ -106,8 +102,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void deleteJobMustHaveSkills(Connection connection, Integer jobId) {
         try (PreparedStatement stmt = connection.prepareStatement(
-                "DELETE FROM \"MustHaveSkills\" WHERE \"jobId\" = ?"
-        )) {
+                "DELETE FROM \"MustHaveSkills\" WHERE \"jobId\" = ?")) {
             stmt.setInt(1, jobId);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -117,8 +112,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void deleteJobInterviewGuideQuestions(Connection connection, Integer jobId) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "DELETE FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?"
-        )) {
+                "DELETE FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?")) {
             statement.setInt(1, jobId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -128,15 +122,13 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private void deleteJobTechnicalStack(Connection connection, Integer jobId) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "DELETE FROM \"JobTechStack\" WHERE \"jobId\" = ?"
-        )) {
+                "DELETE FROM \"JobTechStack\" WHERE \"jobId\" = ?")) {
             statement.setInt(1, jobId);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public void update(Job job) {
@@ -147,8 +139,7 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
             try {
 
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE \"Jobs\" SET \"roleId\" = ?, description = ? WHERE \"jobId\" = ?"
-                )) {
+                        "UPDATE \"Jobs\" SET \"roleId\" = ?, description = ? WHERE \"jobId\" = ?")) {
                     statement.setInt(1, job.getRole().getRoleId());
                     statement.setString(2, job.getDescription());
                     statement.setInt(3, job.getJobId());
@@ -159,11 +150,9 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
                     }
                 }
 
-
                 deleteJobMustHaveSkills(connection, job.getJobId());
                 deleteJobInterviewGuideQuestions(connection, job.getJobId());
                 deleteJobTechnicalStack(connection, job.getJobId());
-
 
                 saveSkillsOfAJob(connection, job.getJobId(), job.getMustHaveSkills());
                 saveGuideOfAJob(connection, job.getJobId(), job.getInterviewGuideQuestions());
@@ -216,7 +205,8 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private List<MustHaveSkill> getSkillsOfAJob(Connection connection, Integer jobId) {
         List<MustHaveSkill> skills = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM \"MustHaveSkills\" WHERE \"jobId\" = ?")) {
+        try (PreparedStatement stmt = connection
+                .prepareStatement("SELECT * FROM \"MustHaveSkills\" WHERE \"jobId\" = ?")) {
             stmt.setInt(1, jobId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -235,7 +225,8 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
 
     private List<InterviewGuideQuestion> getGuidesOfAJob(Connection connection, Integer jobId) {
         List<InterviewGuideQuestion> guides = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?")) {
+        try (PreparedStatement stmt = connection
+                .prepareStatement("SELECT * FROM \"InterviewGuideQuestions\" WHERE \"jobId\" = ?")) {
             stmt.setInt(1, jobId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -311,6 +302,72 @@ public class JobRepositoryImplementation implements JobRepositoryInterface {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Job> getAllJobs() {
+        List<Job> jobs = new ArrayList<>();
+        String sql = "SELECT j.\"jobId\", j.description AS job_desc, " +
+                "r.\"roleId\", r.name AS role_name, " +
+                "d.\"departmentId\", d.name AS dept_name " +
+                "FROM \"Jobs\" j " +
+                "JOIN \"Roles\" r ON j.\"roleId\" = r.\"roleId\" " +
+                "JOIN \"Departments\" d ON r.\"departmentId\" = d.\"departmentId\"";
+
+        try (Connection connection = databaseConnection.getConnection();
+                PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Department dept = new Department(rs.getInt("departmentId"), rs.getString("dept_name"));
+                Role role = new Role(rs.getInt("roleId"), rs.getString("role_name"), dept);
+
+                Job job = new Job();
+                job.setJobId(rs.getInt("jobId"));
+                job.setDescription(rs.getString("job_desc"));
+                job.setRole(role);
+
+                job.setMustHaveSkills(getSkillsOfAJob(connection, job.getJobId()));
+                job.setInterviewGuideQuestions(getGuidesOfAJob(connection, job.getJobId()));
+                job.setTechnologies(getTechnologiesOfAJob(connection, job.getJobId()));
+
+                jobs.add(job);
+            }
+            return jobs;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching jobs! ", e);
+        }
+    }
+
+    @Override
+    public List<Job> getJobHeaders() {
+        List<Job> jobs = new ArrayList<>();
+        String sql = "SELECT j.\"jobId\", j.description AS job_desc, " +
+                "r.\"roleId\", r.name AS role_name, " +
+                "d.\"departmentId\", d.name AS dept_name " +
+                "FROM \"Jobs\" j " +
+                "JOIN \"Roles\" r ON j.\"roleId\" = r.\"roleId\" " +
+                "JOIN \"Departments\" d ON r.\"departmentId\" = d.\"departmentId\"";
+
+        try (Connection connection = databaseConnection.getConnection();
+                PreparedStatement stmt = connection.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Department dept = new Department(rs.getInt("departmentId"), rs.getString("dept_name"));
+                Role role = new Role(rs.getInt("roleId"), rs.getString("role_name"), dept);
+
+                Job job = new Job();
+                job.setJobId(rs.getInt("jobId"));
+                job.setDescription(rs.getString("job_desc"));
+                job.setRole(role);
+
+                jobs.add(job);
+            }
+            return jobs;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching job headers! ", e);
         }
     }
 }

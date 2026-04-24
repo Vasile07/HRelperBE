@@ -1,6 +1,7 @@
 package cs.ubb.hrelperbe.controller;
 
 import cs.ubb.hrelperbe.DTOs.JobDetailsResponse;
+import cs.ubb.hrelperbe.DTOs.JobHeaderData;
 import cs.ubb.hrelperbe.DTOs.JobPostData;
 import cs.ubb.hrelperbe.DTOs.QuizQuestionDTO;
 import cs.ubb.hrelperbe.Interfaces.JobServiceInterface;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/jobs")
@@ -47,4 +49,10 @@ public class JobController {
     public JobDetailsResponse getJobDetailsById(@PathVariable("id") Integer id) {
         return jobService.getJobDetails(id);
     }
+
+    @GetMapping(path = "")
+    public List<JobHeaderData> getJobHeaders() {
+        return jobService.getJobHeaders();
+    }
+    
 }
