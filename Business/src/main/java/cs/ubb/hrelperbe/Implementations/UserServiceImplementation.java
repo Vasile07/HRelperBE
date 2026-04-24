@@ -4,6 +4,7 @@ import cs.ubb.hrelperbe.BaseModels.User;
 import cs.ubb.hrelperbe.Constants.UserType;
 import cs.ubb.hrelperbe.DTOs.AccountRegistrationData;
 import cs.ubb.hrelperbe.DTOs.LoginCredentials;
+import cs.ubb.hrelperbe.DTOs.UserDetailsData;
 import cs.ubb.hrelperbe.Interfaces.UserRepositoryInterface;
 import cs.ubb.hrelperbe.Interfaces.UserServiceInterface;
 import cs.ubb.hrelperbe.Mappers.UserMapper;
@@ -11,6 +12,8 @@ import cs.ubb.hrelperbe.authentication.TokenProvider;
 import cs.ubb.hrelperbe.validation.UserValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Locale;
 
 @Service
 public class UserServiceImplementation implements UserServiceInterface {
@@ -53,5 +56,15 @@ public class UserServiceImplementation implements UserServiceInterface {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
+    }
+
+    @Override
+    public UserDetailsData getUserDetails(Integer userId) {
+        User user = userRepository.getUserById(userId);
+        return new UserDetailsData(
+                user.getName(),
+                user.getEmail(),
+                user.getType().name().toLowerCase(Locale.ROOT)
+        );
     }
 }

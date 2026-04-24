@@ -44,6 +44,30 @@ public class UserRepositoryImplementation implements UserRepositoryInterface {
         }
     }
 
+    @Override
+    public User getUserById(Integer userId) {
+        try (
+                Connection connection = databaseConnection.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("select * from \"Users\" where \"userId\" = ?");
+        ) {
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String surname = resultSet.getString("surname");
+                String email = resultSet.getString("email");
+                String password = resultSet.getString("password");
+                String type = resultSet.getString("type");
+                UserType userType = UserType.valueOf(type);
+                return new User(userId, name, surname, email, password, userType);
+            } else {
+                throw new RuntimeException("User doesn't exist.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean emailExists(String email) {
         Connection connection = null;
         try {
