@@ -1,6 +1,7 @@
 package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.Technology;
+import cs.ubb.hrelperbe.DTOs.TechnologyData;
 import cs.ubb.hrelperbe.DTOs.TechnologyResponse;
 import cs.ubb.hrelperbe.Interfaces.TechnologyRepositoryInterface;
 import cs.ubb.hrelperbe.Interfaces.TechnologyServiceInterface;
@@ -24,5 +25,15 @@ public class TechnologyServiceImplementation implements TechnologyServiceInterfa
         return technologies.stream()
                 .map(tech -> new TechnologyResponse(tech.getTechnologyId(), tech.getName()))
                 .collect(Collectors.toList());
+    }
+
+    @Override 
+    public TechnologyData getTechnologyById(Integer technologyId){
+        Technology technology = technologyRepository.getTechnologyById(technologyId);
+        
+        return new TechnologyData(
+            technologyId,
+            technology.getName(),
+            technology.getDescription());
     }
 }
