@@ -50,4 +50,16 @@ public class TokenProvider {
         }
     }
 
+    public String extractRole(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+            return JWT.require(algorithm)
+                    .build()
+                    .verify(token)
+                    .getClaim("role")
+                    .asString();
+        } catch (JWTVerificationException exception) {
+            throw new CustomException("Invalid JWT token", HttpStatus.UNAUTHORIZED);
+        }
+    }
 }

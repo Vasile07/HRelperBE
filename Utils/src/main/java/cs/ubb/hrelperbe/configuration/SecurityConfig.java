@@ -63,10 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/jobs/{id}").hasAuthority("HIRING_MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/jobs/{id}").hasAuthority("HIRING_MANAGER")
                         .requestMatchers(HttpMethod.GET, "/jobs/{id}/quiz").hasAuthority("RECRUITER")
-                        .requestMatchers(HttpMethod.GET, "/jobs/{id}").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
-                        .requestMatchers(HttpMethod.GET, "/jobs").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
                         .requestMatchers(HttpMethod.GET, "/technologies").hasAuthority("HIRING_MANAGER")
-                        .requestMatchers(HttpMethod.GET, "/technologies/{id}").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
                         .requestMatchers(HttpMethod.GET, "/roles").hasAuthority("HIRING_MANAGER")
                         .requestMatchers(
                                 "/v3/api-docs/**",
