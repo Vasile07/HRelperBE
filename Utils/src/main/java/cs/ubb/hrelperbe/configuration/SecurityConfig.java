@@ -58,16 +58,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/jobs").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/jobs").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/jobs/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/jobs/{id}/quiz").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/jobs/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/jobs").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/technologies").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/technologies/{id}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/jobs").hasAuthority("HIRING_MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/jobs/{id}").hasAuthority("HIRING_MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/jobs/{id}").hasAuthority("HIRING_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/jobs/{id}/quiz").hasAuthority("RECRUITER")
+                        .requestMatchers(HttpMethod.GET, "/jobs/{id}").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
+                        .requestMatchers(HttpMethod.GET, "/jobs").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
+                        .requestMatchers(HttpMethod.GET, "/technologies").hasAuthority("HIRING_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/technologies/{id}").hasAnyAuthority("HIRING_MANAGER", "RECRUITER")
+                        .requestMatchers(HttpMethod.GET, "/roles").hasAuthority("HIRING_MANAGER")
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
