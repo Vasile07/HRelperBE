@@ -64,7 +64,7 @@ public class UserServiceImplementation implements UserServiceInterface {
     public UserDetailsData getUserDetails(Integer userId) {
         User user = userRepository.getUserById(userId);
         return new UserDetailsData(
-                user.getName(),
+                user.getName() + " " + user.getSurname(),
                 user.getEmail(),
                 user.getType().name().toLowerCase(Locale.ROOT)
         );
