@@ -2,6 +2,7 @@ package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.User;
 import cs.ubb.hrelperbe.Constants.UserType;
+import cs.ubb.hrelperbe.CustomException;
 import cs.ubb.hrelperbe.DTOs.AccountRegistrationData;
 import cs.ubb.hrelperbe.DTOs.LoginCredentials;
 import cs.ubb.hrelperbe.DTOs.UserDetailsData;
@@ -10,6 +11,7 @@ import cs.ubb.hrelperbe.Interfaces.UserServiceInterface;
 import cs.ubb.hrelperbe.Mappers.UserMapper;
 import cs.ubb.hrelperbe.authentication.TokenProvider;
 import cs.ubb.hrelperbe.validation.UserValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,7 @@ public class UserServiceImplementation implements UserServiceInterface {
     public String login(LoginCredentials loginCredentials) {
         User user = userRepository.getUserByEmail(loginCredentials.getEmail());
         if (!passwordEncoder.matches(loginCredentials.getPassword(), user.getPassword())){
-            throw new RuntimeException("Incorrect password");
+            throw new CustomException("Invalid credentials", HttpStatus.NOT_FOUND);
         }
         return tokenProvider.generateAccessToken(user);
     }
@@ -62,7 +64,7 @@ public class UserServiceImplementation implements UserServiceInterface {
     public UserDetailsData getUserDetails(Integer userId) {
         User user = userRepository.getUserById(userId);
         return new UserDetailsData(
-                user.getName(),
+                user.getName() + " " + user.getSurname(),
                 user.getEmail(),
                 user.getType().name().toLowerCase(Locale.ROOT)
         );

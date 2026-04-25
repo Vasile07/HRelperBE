@@ -2,8 +2,10 @@ package cs.ubb.hrelperbe.Implementations;
 
 import cs.ubb.hrelperbe.BaseModels.User;
 import cs.ubb.hrelperbe.Constants.UserType;
+import cs.ubb.hrelperbe.CustomException;
 import cs.ubb.hrelperbe.DatabaseConnection;
 import cs.ubb.hrelperbe.Interfaces.UserRepositoryInterface;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -37,7 +39,7 @@ public class UserRepositoryImplementation implements UserRepositoryInterface {
                 User user = new User(userId, name, surname, email, password, userType);
                 return user;
             } else {
-                throw new RuntimeException("User doesn't exist.");
+                throw new CustomException("Invalid credentials", HttpStatus.NOT_FOUND);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -103,7 +105,7 @@ public class UserRepositoryImplementation implements UserRepositoryInterface {
                 PreparedStatement statement = connection.prepareStatement("insert into \"Users\" (name, surname, email, password, type) values (?, ?, ?, ?, ?)");
         ) {
             if (emailExists(user.getEmail())) {
-                throw new RuntimeException("A user with this email already exists!");
+                throw new CustomException("A user with this email already exists!", HttpStatus.CONFLICT);
             }
             statement.setString(1, user.getName());
             statement.setString(2, user.getSurname());
