@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class JobHeaderData {
-    private Integer idJob;
+    private Integer jobId;
     private String role;
     private String department;
 }
