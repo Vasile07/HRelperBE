@@ -85,7 +85,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOrigin("http://localhost:8081");
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081", "http://192.168.0.122:8081")); // nu "*" dacă ai credentials
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081",
+                "http://localhost:5173",
+                "http://192.168.0.122:8081",
+                "https://hrelper.vercel.app"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
