@@ -5,6 +5,7 @@ import cs.ubb.hrelperbe.Constants.UserType;
 import cs.ubb.hrelperbe.CustomException;
 import cs.ubb.hrelperbe.DTOs.AccountRegistrationData;
 import cs.ubb.hrelperbe.DTOs.LoginCredentials;
+import cs.ubb.hrelperbe.DTOs.TokenDto;
 import cs.ubb.hrelperbe.DTOs.UserDetailsData;
 import cs.ubb.hrelperbe.Interfaces.UserRepositoryInterface;
 import cs.ubb.hrelperbe.Interfaces.UserServiceInterface;
@@ -38,12 +39,16 @@ public class UserServiceImplementation implements UserServiceInterface {
     }
 
     @Override
-    public String login(LoginCredentials loginCredentials) {
+    public TokenDto login(LoginCredentials loginCredentials) {
         User user = userRepository.getUserByEmail(loginCredentials.getEmail());
         if (!passwordEncoder.matches(loginCredentials.getPassword(), user.getPassword())){
             throw new CustomException("Invalid credentials", HttpStatus.NOT_FOUND);
         }
-        return tokenProvider.generateAccessToken(user);
+
+        var tokenDto = new TokenDto();
+        tokenDto.setAccessToken(tokenProvider.generateAccessToken(user));
+        tokenDto.setIdToken(tokenProvider.generateIdToken(user));
+        return tokenDto;
     }
 
     @Override

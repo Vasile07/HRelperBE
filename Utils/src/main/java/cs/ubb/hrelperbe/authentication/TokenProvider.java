@@ -31,6 +31,15 @@ public class TokenProvider {
                 .sign(algorithm);
     }
 
+    public String generateIdToken(User user){
+        Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+        return JWT.create()
+                .withSubject(user.getUserId().toString())
+                .withClaim("email", user.getEmail())
+                .withClaim("name", user.getName() + " " + user.getSurname())
+                .sign(algorithm);
+    }
+
     /**
      * Validates a JWT token by verifying its signature and extracting the user ID from the token's subject.
      * If the token is valid, it returns the user's ID. If invalid, it throws a JwtValidationException.
